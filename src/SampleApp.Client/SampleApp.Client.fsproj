@@ -3,14 +3,20 @@
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
     </PropertyGroup>
+    <Import Project="styles\TailwindCli.targets" />
     <ItemGroup>
-        <Compile Include="Main.fs"/>
-        <Compile Include="Startup.fs"/>
+        <Compile Include="Main.fs" />
+        <Compile Include="Startup.fs" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Bolero" Version="0.*"/>
-        <PackageReference Include="Bolero.Build" Version="0.*"/>
-        <PackageReference Include="Bolero.HotReload" Version="0.*"/>
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="7.0.*"/>
+        <PackageReference Include="Bolero" Version="0.*" />
+        <PackageReference Include="Bolero.Build" Version="0.*" />
+        <PackageReference Include="Bolero.HotReload" Version="0.*" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="7.0.*" />
+    </ItemGroup>
+    <ItemGroup>
+      <Content Include="styles\tailwind.css" />
+      <Content Include="styles\tailwind.config.js" />
+      <Content Include="styles\TailwindCli.targets" />
     </ItemGroup>
 </Project>
