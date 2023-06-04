@@ -4,6 +4,8 @@
         <TargetFramework>net7.0</TargetFramework>
     </PropertyGroup>
     <ItemGroup>
+        <Compile Include="Agent.fs" />
+        <Compile Include="Cmd.OfAgent.fs" />
         <Compile Include="Main.fs" />
         <Compile Include="Startup.fs" />
     </ItemGroup>

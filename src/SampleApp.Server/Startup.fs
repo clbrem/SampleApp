@@ -18,12 +18,13 @@ type Startup() =
     // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
     member this.ConfigureServices(services: IServiceCollection) =
         services.AddMvc() |> ignore
-        services.AddServerSideBlazor() |> ignore
+        services.AddServerSideBlazor() |> ignore        
         services
             .AddAuthorization()
             .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie()
-                .Services            
+                .Services
+            .AddBoleroRemoting<Service>()
             .AddBoleroHost()
 #if DEBUG
             .AddHotReload(templateDir = __SOURCE_DIRECTORY__ + "/../SampleApp.Client")

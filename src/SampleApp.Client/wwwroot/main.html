@@ -6,11 +6,7 @@
                 <a href="${Home}">
                     <h3 class=" text-2xl select-none font-medium text-green-700">Home</h3>
                 </a>
-            </div>
-            <div class="hidden space-x-8 lg:flex">
-                <a href="">Menu 1</a>
-                <a href="">Menu 2</a>
-            </div>
+            </div>            
             <div class="flex lg:hidden">
                 <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -31,7 +27,30 @@
     </template>    
 </header>
 <div class="container flex justify-between px-4 py-8 mx-auto bg-white">
-    <code class="font-mono font-large">
-        <p> I AM A ROBOT </p> 
-    </code>
+    <div class="grid grid-cols-2">
+        <div class="p-4">
+            <code class="font-mono font-large">
+                <p> Do what the button says </p>
+            </code>
+        </div>
+        <div class="p-4">
+            ${Button}
+            <template id="BlueButton">            
+                <button 
+                        class="bg-blue-500 hover:bg-blue-700 text-white  font-bold py-2 px-4 rounded"
+                        onclick="${Clicked}"
+                >
+                    Click Me
+                </button>
+                
+            </template>
+            <template id="Spinner">
+                <div class="bg-blue-500 hover:bg-blue-700 text-white  font-bold py-2 px-4 rounded">
+                    <div class="flex items-center justify-center ">
+                        <div class="w-7 h-7 border-b-2 border-white-900 rounded-full animate-spin"></div>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>    
 </div>
