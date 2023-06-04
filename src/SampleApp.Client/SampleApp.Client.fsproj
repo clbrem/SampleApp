@@ -3,7 +3,6 @@
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
     </PropertyGroup>
-    <Import Project="styles\TailwindCli.targets" />
     <ItemGroup>
         <Compile Include="Main.fs" />
         <Compile Include="Startup.fs" />
@@ -17,6 +16,7 @@
     <ItemGroup>
       <Content Include="styles\tailwind.css" />
       <Content Include="styles\tailwind.config.js" />
-      <Content Include="styles\TailwindCli.targets" />
+      <Content Include="styles\build.ps1" />
+      <Content Include="styles\watch.ps1" />
     </ItemGroup>
 </Project>

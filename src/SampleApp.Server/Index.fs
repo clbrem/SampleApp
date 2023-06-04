@@ -9,27 +9,15 @@ let page = doctypeHtml {
     head {
         meta { attr.charset "UTF-8" }
         meta { attr.name "viewport"; attr.content "width=device-width, initial-scale=1.0" }
-        title { "Bolero Application" }
+        title { "A Sample Page" }
         ``base`` { attr.href "/" }
-        link { attr.rel "stylesheet"; attr.href "https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.4/css/bulma.min.css" }
-        link { attr.rel "stylesheet"; attr.href "SampleApp.Client.styles.css" }
-        link { attr.rel "stylesheet"; attr.href "css/index.css" }
+        link { attr.rel "stylesheet"; attr.href "css/tailwind.css" }
+        link { attr.rel "preconnect"; attr.href "https://fonts.googleapis.com"}
+        link { attr.rel "preconnect"; attr.href "https://fonts.gstatic.com"; attr.crossorigin ""}
+        link { attr.rel "stylesheet"; attr.href "https://fonts.googleapis.com/css2?family=Overpass+Mono:wght@400;600&family=Source+Sans+Pro:ital,wght@0,400;0,700;1,400&family=Spectral:ital,wght@0,400;0,600;1,400&display=swap" }
+
     }
-    body {
-        nav {
-            attr.``class`` "navbar is-dark"
-            "role" => "navigation"
-            attr.aria "label" "main navigation"
-            div {
-                attr.``class`` "navbar-brand"
-                a {
-                    attr.``class`` "navbar-item has-text-weight-bold is-size-5"
-                    attr.href "https://fsbolero.io"
-                    img { attr.style "height:40px"; attr.src "https://github.com/fsbolero/website/raw/master/src/Website/img/wasm-fsharp.png" }
-                    "  Bolero"
-                }
-            }
-        }
+    body {        
         div { attr.id "main"; comp<Client.Main.MyApp> }
         boleroScript
     }
