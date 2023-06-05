@@ -8,6 +8,8 @@ module Main =
     open Bolero.Remoting
     open Bolero.Remoting.Client
     open Bolero.Templating.Client
+    open SampleApp.Client
+
 
     /// Routing endpoints definition.
     type Page =
@@ -45,7 +47,7 @@ module Main =
     /// Connects the routing system to the Elmish application.
     let router = Router.infer SetPage (fun model -> model.page)
     type Main = Template<"wwwroot/main.html">
-    let update (service: Service) message model =
+    let update (service: Service) delay message model =
         match message with 
         | SetPage page ->        
             {model with page = page},
@@ -55,7 +57,10 @@ module Main =
         | Redirect page ->
             {model with page = page}, Cmd.none
         | ToggleStatus ->
-            {model with status = toggleStatus model.status}, Cmd.none
+            {model with status = toggleStatus model.status},
+            match model.status with
+            | Complete -> Cmd.OfAgent.perform delay ToggleStatus
+            | Waiting -> Cmd.none
 
     let view model dispatch =
         Main().HeaderContent(
@@ -79,7 +84,8 @@ module Main =
         
         override this.Program =
             let service = this.Remote<Service>()
-            Program.mkProgram (fun _ -> init, Cmd.none) (update service) view
+            use delay = Agent.delay (TimeSpan.FromSeconds(1))
+            Program.mkProgram (fun _ -> init, Cmd.none) (update service delay) view
             |> Program.withRouter router
     #if DEBUG
             |> Program.withHotReload

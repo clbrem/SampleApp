@@ -1,4 +1,4 @@
-﻿namespace Client
+﻿namespace SampleApp.Client
 
 module Cmd =
     open Elmish
