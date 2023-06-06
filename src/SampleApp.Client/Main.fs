@@ -19,7 +19,10 @@ module Main =
     type Message =
         | SetPage of Page
         | Redirect of Page
-        | ToggleStatus
+        | ToggleStatus        
+        | Poll
+        | ReceivePoll of int option
+        
     type Status =
         | Complete
         | Waiting
@@ -30,8 +33,9 @@ module Main =
         | Waiting -> Complete
     type Service =
         {
-            getStatus : unit -> Async<Guid>        
-            poll: Guid -> Async<unit option>        
+            getStatus : unit -> Async<Guid>
+            startComputation: Guid -> Async<unit> 
+            poll: Guid -> Async<int option>        
         }
         interface IRemoteService with
           member this.BasePath = "/api"    
@@ -47,7 +51,8 @@ module Main =
     /// Connects the routing system to the Elmish application.
     let router = Router.infer SetPage (fun model -> model.page)
     type Main = Template<"wwwroot/main.html">
-    let update (service: Service) delay message model =
+    let update (service: Service) poll message model =
+        Console.WriteLine($"{message}")
         match message with 
         | SetPage page ->        
             {model with page = page},
@@ -58,9 +63,22 @@ module Main =
             {model with page = page}, Cmd.none
         | ToggleStatus ->
             {model with status = toggleStatus model.status},
-            match model.status with
-            | Complete -> Cmd.OfAgent.perform delay ToggleStatus
-            | Waiting -> Cmd.none
+            match model.page, model.status with
+            | Status st, Complete -> Cmd.batch [Cmd.OfAsync.attempt service.startComputation (Guid st) (fun _ -> Redirect Home); Cmd.OfAgent.perform poll (Some Poll)]
+            | _, _ -> Cmd.none
+        | Poll ->
+            match model.page with
+            | Home -> model, Cmd.none
+            | Status st ->
+                model, Cmd.OfAsync.perform service.poll (Guid st) ReceivePoll
+        | ReceivePoll (Some _) ->
+            { model with status = Complete },
+            Cmd.OfAgent.perform poll None
+        | ReceivePoll None ->
+            model, Cmd.none
+            
+            
+        
 
     let view model dispatch =
         Main().HeaderContent(
@@ -68,7 +86,7 @@ module Main =
                 .Home(router.getRoute Home)
                 .Elt()
             ).Button(
-               cond (model.status)
+               cond model.status
                <| function
                    | Waiting ->
                        Main.Spinner().Elt()
@@ -84,8 +102,8 @@ module Main =
         
         override this.Program =
             let service = this.Remote<Service>()
-            use delay = Agent.delay (TimeSpan.FromSeconds(1))
-            Program.mkProgram (fun _ -> init, Cmd.none) (update service delay) view
+            use poll = Agent.poll (TimeSpan.FromSeconds(1))
+            Program.mkProgram (fun _ -> init, Cmd.none) (update service poll) view
             |> Program.withRouter router
     #if DEBUG
             |> Program.withHotReload
