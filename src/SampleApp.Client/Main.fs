@@ -9,6 +9,7 @@ module Main =
     open Bolero.Remoting.Client
     open Bolero.Templating.Client
     open SampleApp.Client
+    open SampleApp.Client.Agent
 
 
     /// Routing endpoints definition.
@@ -102,7 +103,7 @@ module Main =
         
         override this.Program =
             let service = this.Remote<Service>()
-            use poll = Agent.poll (TimeSpan.FromSeconds(1))
+            use poll = Timers.poll (TimeSpan.FromSeconds(1))
             Program.mkProgram (fun _ -> init, Cmd.none) (update service poll) view
             |> Program.withRouter router
     #if DEBUG

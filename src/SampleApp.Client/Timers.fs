@@ -1,6 +1,6 @@
-﻿namespace SampleApp.Client
+﻿namespace SampleApp.Client.Agent
 
-module Agent =
+module Timers =
     open System.Timers
     let private tryDispose (maybeTimer: Timer option) =
         match maybeTimer with
