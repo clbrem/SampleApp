@@ -10,7 +10,7 @@ type Service(ctx: IRemoteContext, env: IWebHostEnvironment) =
     inherit RemoteHandler<SampleApp.Client.Main.Service>()
     let  _inFlight : Dictionary<Guid, Timer option> = Dictionary()        
     let timer id =
-        let t = new Timer(TimeSpan.FromSeconds(10))
+        let t = new Timer(TimeSpan.FromSeconds(2))
         t.AutoReset <- false
         t.Elapsed.AddHandler(
             fun timer _ ->
