@@ -1,9 +1,12 @@
 namespace SampleApp.Server
 
+open System.Text.Json
+open System.Text.Json.Serialization
 open Microsoft.AspNetCore
 open Microsoft.AspNetCore.Authentication.Cookies
 open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.Hosting
+open Microsoft.AspNetCore.ResponseCompression
 open Microsoft.Extensions.DependencyInjection
 open Microsoft.Extensions.Hosting
 open Bolero
@@ -17,8 +20,20 @@ type Startup() =
     // This method gets called by the runtime. Use this method to add services to the container.
     // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
     member this.ConfigureServices(services: IServiceCollection) =
+        
         services.AddMvc() |> ignore
-        services.AddServerSideBlazor() |> ignore        
+        services.AddServerSideBlazor() |> ignore
+        services.AddSignalR().AddJsonProtocol(
+            fun opts ->
+                JsonFSharpOptions
+                    .Default()
+                    .AddToJsonSerializerOptions(opts.PayloadSerializerOptions)
+                )
+        |> ignore
+        services.AddResponseCompression(
+            fun opts ->
+                opts.MimeTypes <- Seq.append ResponseCompressionDefaults.MimeTypes ["application/octet-stream"]
+            ) |> ignore
         services
             .AddAuthorization()
             .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -37,6 +52,7 @@ type Startup() =
             app.UseWebAssemblyDebugging()
 
         app
+            .UseResponseCompression()            
             .UseAuthentication()
             .UseStaticFiles()
             .UseRouting()
@@ -48,8 +64,12 @@ type Startup() =
 #endif
                 endpoints.MapBoleroRemoting() |> ignore
                 endpoints.MapBlazorHub() |> ignore
-                endpoints.MapFallbackToBolero(Index.page) |> ignore)
+                endpoints.MapFallbackToBolero(Index.page) |> ignore
+                endpoints.MapHub<Hubs.SampleHub>("/hubs") |> ignore
+                )
+            
         |> ignore
+        
 
 module Program =
 
@@ -59,6 +79,7 @@ module Program =
             .CreateDefaultBuilder(args)
             .UseStaticWebAssets()
             .UseStartup<Startup>()
-            .Build()
+            
+            .Build()            
             .Run()
         0
