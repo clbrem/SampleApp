@@ -1,22 +1,29 @@
 ﻿namespace SampleApp.Client.Agent
-open Microsoft.AspNetCore.SignalR
 open Microsoft.AspNetCore.SignalR.Client
+open Microsoft.AspNetCore.Components
 open Microsoft.Extensions.DependencyInjection
-open System.Text.Json
 open System.Text.Json.Serialization
 
 module Hubs =
-    open Microsoft.AspNetCore.SignalR.Client
-    let factory (url: string) =
-        HubConnectionBuilder()
-          .WithUrl(url)
-          .WithAutomaticReconnect()
-          .AddJsonProtocol(
-              fun opts ->
-                JsonFSharpOptions
-                    .Default()
-                    .AddToJsonSerializerOptions(opts.PayloadSerializerOptions)
-          ).Build()
+    open Microsoft.AspNetCore.SignalR.Client    
+    let factory () =        
+        let hub = 
+          HubConnectionBuilder()
+              .WithUrl("/hubs")
+              .WithAutomaticReconnect()
+              .AddJsonProtocol(
+                  fun opts ->
+                    JsonFSharpOptions
+                        .Default()
+                        .AddToJsonSerializerOptions(opts.PayloadSerializerOptions)
+              ).Build()
+        hub.On<string, string>(
+            "ReceiveMessage",
+            fun user message ->                
+                    failwith "todo"
+            )
+        
+        
     
           
           

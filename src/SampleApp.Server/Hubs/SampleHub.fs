@@ -5,3 +5,4 @@ type SampleHub() =
     member this.SendMessage(user: string, message: string) =
         this.Clients.All.SendAsync("ReceiveMessage", user, message)
 
+    

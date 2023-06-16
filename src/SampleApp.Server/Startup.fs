@@ -79,7 +79,6 @@ module Program =
             .CreateDefaultBuilder(args)
             .UseStaticWebAssets()
             .UseStartup<Startup>()
-            
             .Build()            
             .Run()
         0
