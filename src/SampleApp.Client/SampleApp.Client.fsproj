@@ -5,7 +5,7 @@
     </PropertyGroup>
     <ItemGroup>
         <Compile Include="Timers.fs" />
-        <Compile Include="Hubs.fs" />
+        <Compile Include="Cmd.OfHub.fs" />
         <Compile Include="Cmd.OfAgent.fs" />
         <Compile Include="Main.fs" />
         <Compile Include="Startup.fs" />

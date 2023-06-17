@@ -73,8 +73,10 @@ module Main =
             | Status st ->
                 model, Cmd.OfAsync.perform service.poll (Guid st) ReceivePoll
         | ReceivePoll (Some _) ->
-            { model with status = Complete },
+            { model with status = Complete },            
             Cmd.OfAgent.perform poll None
+            
+            
         | ReceivePoll None ->
             model, Cmd.none
             

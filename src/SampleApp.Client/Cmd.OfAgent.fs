@@ -15,4 +15,4 @@ module Cmd =
                     do agent.Error.Add(handler >> dispatch)
                     do agent.Post(dispatch, message)
                     )
-            
+    
