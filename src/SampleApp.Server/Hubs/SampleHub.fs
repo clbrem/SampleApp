@@ -5,8 +5,8 @@ type SampleHub() =
     inherit Hub()
     member this.SendMessage(user: string, message: string) =
         task {
-            do! Task.Delay 5000
-            do! this.Clients.All.SendAsync("ReceiveMessage", user, message)
+            do! Task.Delay 1000
+            do! this.Clients.All.SendAsync("ReceiveMessage", user, message)            
         }
         
 

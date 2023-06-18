@@ -62,10 +62,12 @@ type Startup() =
 #if DEBUG
                 endpoints.UseHotReload()
 #endif
+                endpoints.MapHub<Hubs.SampleHub>("/hubs") |> ignore
                 endpoints.MapBoleroRemoting() |> ignore
                 endpoints.MapBlazorHub() |> ignore
+
                 endpoints.MapFallbackToBolero(Index.page) |> ignore
-                endpoints.MapHub<Hubs.SampleHub>("/hubs") |> ignore
+                
                 )
             
         |> ignore

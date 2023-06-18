@@ -189,3 +189,20 @@ module Cmd =
                 Cmd.ofEffect (fun dispatch ->
                     hub.On(methodName, (fun a b c d e f g h -> onSent a b c d e f g h |> dispatch))
                     |> ignore)
+        
+        static member onDisconnect(hub: HubConnection) (onClosed: exn -> 'A) =
+            Cmd.ofEffect (
+                fun dispatch ->                  
+                  hub.add_Closed(fun e -> task {return onClosed e |> dispatch}  ) 
+                  )
+        static member onReconnect(hub: HubConnection) (onReconnect: string -> 'A) =
+            Cmd.ofEffect(
+                fun dispatch ->
+                    hub.add_Reconnected(fun s -> task {return onReconnect s |> dispatch})                    
+                    )
+        
+        static member onReconnecting(hub: HubConnection) (onReconnecting: exn -> 'A) =
+            Cmd.ofEffect(
+                fun dispatch ->
+                    hub.add_Reconnecting(fun e -> task {return onReconnecting e |> dispatch})
+                    ) 

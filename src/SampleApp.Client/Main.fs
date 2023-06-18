@@ -18,7 +18,7 @@ module Main =
     /// Routing endpoints definition.
     type Page =
         | [<EndPoint "/">] Home
-        | [<EndPoint "/">] Status of string
+        | [<EndPoint "/status/">] Status of string
 
     type Message =
         | SetPage of Page
@@ -28,6 +28,9 @@ module Main =
         | ReceivePoll of int option
         | SendHub
         | ReceiveHub
+        | Noop
+        | OnDisconnect
+        | OnConnect
     type PingPong =
         | Ping
         | Pong
@@ -54,27 +57,39 @@ module Main =
             page: Page
             status: Status
             pingPong: PingPong
-            
+            connected: bool
         }
-    let init = {page = Home; status=Complete; pingPong = Pong}
+    let init = {page = Home; status=Complete; pingPong = Pong; connected = false}
 
     /// Connects the routing system to the Elmish application.
     let router = Router.infer SetPage (fun model -> model.page)
     type Main = Template<"wwwroot/main.html">
-    let update (hub: HubConnection) (service: Service) poll message model =        
+    let update (hub: HubConnection) (service: Service) poll message model =
+        Console.WriteLine($"{message}")
         match message with 
         | SetPage page ->            
-            {model with page = page},
+            
             match page with
-            | Home -> Cmd.batch [
+            | Home ->
+                {model with page = page},Cmd.batch [
                 Cmd.OfAsync.perform service.getStatus () (string >> Status >> Redirect)                
                 ]
             | Status _ ->
-                Cmd.OfTask.attempt (
+                {model with page = page; connected = true },Cmd.batch [
+                    Cmd.OfHub.onReconnecting hub (fun _ -> OnDisconnect)
+                    Cmd.OfHub.onReconnect hub (fun _ -> OnConnect)
+                    Cmd.OfTask.attempt (
                     fun _ -> task {
                         do! hub.StartAsync()
-                    }) () (fun _ -> SetPage Home)
+                    }) () (fun _ -> Noop)
+                ]
                 
+        | OnDisconnect ->
+            Console.WriteLine("Connection Lost! 😭")
+            { model with connected = false}, Cmd.none
+        | OnConnect ->
+            Console.WriteLine("Connected! 😍")
+            { model with connected = true }, Cmd.none
         | Redirect page ->
             Console.WriteLine($"{page}")
             {model with page = page}, Cmd.none
@@ -107,15 +122,20 @@ module Main =
         | ReceiveHub ->
             {model with pingPong = Pong},
             Cmd.none
-            
+        | Noop -> model, Cmd.none
             
             
         
 
     let view model dispatch =
-        Main().HeaderContent(
-            Main.StandardNav()
+        Main()            
+            .HeaderContent(
+            Main
+                .StandardNav()
                 .Home(router.getRoute Home)
+                .Fill(
+                    if model.connected then "connected" else "disconnected"
+                    )
                 .Elt()
             ).Button(
                cond model.pingPong
