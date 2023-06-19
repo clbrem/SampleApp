@@ -45,5 +45,23 @@
                 </button>
             </template>
         </div>
-    </div>    
+        <div class="p-4">Friends</div> <div></div>
+        <div class="p-4">
+            <table class="table-auto">
+                <thead>
+                <tr>
+                    <th>Id</th>
+                </tr>
+                </thead>
+                ${Friends}
+                <template id="FriendItem">
+                    <tr>
+                        <td>${Id}</td>
+                    </tr>
+                </template>
+            </table>  
+        </div>
+
+    </div>
+    
 </div>

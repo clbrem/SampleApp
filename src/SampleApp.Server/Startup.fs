@@ -23,6 +23,7 @@ type Startup() =
         
         services.AddMvc() |> ignore
         services.AddServerSideBlazor() |> ignore
+        services.AddSingleton<State>() |> ignore
         services.AddSignalR().AddJsonProtocol(
             fun opts ->
                 JsonFSharpOptions

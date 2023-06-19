@@ -4,6 +4,7 @@
         <TargetFramework>net7.0</TargetFramework>
     </PropertyGroup>
     <ItemGroup>
+        <Compile Include="State.fs" />
         <Compile Include="Hubs\SampleHub.fs" />
         <Compile Include="Service.fs" />        
         <Compile Include="Index.fs" />

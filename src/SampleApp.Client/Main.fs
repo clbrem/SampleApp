@@ -31,6 +31,7 @@ module Main =
         | Noop
         | OnDisconnect
         | OnConnect
+        | ReceiveFriends of Guid list
     type PingPong =
         | Ping
         | Pong
@@ -58,8 +59,9 @@ module Main =
             status: Status
             pingPong: PingPong
             connected: bool
+            friends: Guid list
         }
-    let init = {page = Home; status=Complete; pingPong = Pong; connected = false}
+    let init = {page = Home; status=Complete; pingPong = Pong; connected = false; friends = []}
 
     /// Connects the routing system to the Elmish application.
     let router = Router.infer SetPage (fun model -> model.page)
@@ -74,14 +76,17 @@ module Main =
                 {model with page = page},Cmd.batch [
                 Cmd.OfAsync.perform service.getStatus () (string >> Status >> Redirect)                
                 ]
-            | Status _ ->
+            | Status id ->
                 {model with page = page; connected = true },Cmd.batch [
                     Cmd.OfHub.onReconnecting hub (fun _ -> OnDisconnect)
-                    Cmd.OfHub.onReconnect hub (fun _ -> OnConnect)
+                    Cmd.OfHub.onReconnect hub (fun _ -> OnConnect)                    
                     Cmd.OfTask.attempt (
                     fun _ -> task {
                         do! hub.StartAsync()
                     }) () (fun _ -> Noop)
+                    Cmd.OfHub.send<Guid,Message> hub "LogIn" (Guid(id)) (fun _ -> Noop)
+                    Cmd.OfHub.receive<Message> hub "Pong" (fun _-> ReceiveHub)
+                    Cmd.OfHub.receive<Guid list,Message> hub "Friends" ReceiveFriends
                 ]
                 
         | OnDisconnect ->
@@ -111,17 +116,21 @@ module Main =
             model, Cmd.none
         | SendHub ->
             { model with pingPong = Ping},
-            Cmd.batch [
-                Cmd.OfHub.receive<string, string,Message> hub "ReceiveMessage" (fun user msg -> ReceiveHub) 
-                Cmd.OfHub.send<string,string,Message>
-                    hub
-                    "SendMessage"
-                    ("hi","bye")
-                    (fun exc -> Console.WriteLine $"Errored!!{exc.Message}"; SetPage Home)
-                ]
+            match model.page with
+            | Status id ->                
+                    Cmd.OfHub.send<Message>
+                        hub
+                        "Ping"
+                        (fun exc -> Console.WriteLine $"Errored!!{exc.Message}"; SetPage Home)
+            | _ -> Cmd.none
+                        
+            
+
         | ReceiveHub ->
             {model with pingPong = Pong},
             Cmd.none
+        | ReceiveFriends friends ->
+            {model with friends = friends }, Cmd.none
         | Noop -> model, Cmd.none
             
             
@@ -147,7 +156,14 @@ module Main =
                            .BlueButton()
                            .Clicked(fun _ -> dispatch SendHub)
                            .Elt()
-            ).Elt()    
+            )
+            .Friends(
+                tbody {
+                    for item in model.friends do
+                    yield Main.FriendItem().Id(text $"{item}").Elt()
+                }
+                )
+            .Elt()    
 
     type MyApp() =
         inherit ProgramComponent<Model, Message>()
