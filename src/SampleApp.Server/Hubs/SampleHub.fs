@@ -4,22 +4,22 @@ open SampleApp.Server
 open Microsoft.AspNetCore.SignalR
 open System.Threading.Tasks
 
+
+
 type SampleHub(state: State) =
     inherit Hub()
-
+    
     member this.Ping() =
-        task {
-            do! Task.Delay 1000
+        task {            
             do! this.Clients.Caller.SendAsync("Pong")
         }
-
     member this.LogIn(user: Guid) =
         task {
-            let userId = this.Context.UserIdentifier
-            do state.Add(userId,user)
+            do state.Add(user )            
             do!
                 this.Clients.All.SendAsync(
                     "Friends",
                     state.List()
                 )
         }
+    
