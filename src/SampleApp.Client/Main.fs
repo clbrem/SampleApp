@@ -118,9 +118,10 @@ module Main =
             { model with pingPong = Ping},
             match model.page with
             | Status id ->                
-                    Cmd.OfHub.send<Message>
+                    Cmd.OfHub.send< Guid, Message>
                         hub
                         "Ping"
+                        (Guid(id))
                         (fun exc -> Console.WriteLine $"Errored!!{exc.Message}"; SetPage Home)
             | _ -> Cmd.none
                         
